@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Word Search — JS with Drag Selection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --cell: 34px;
+      --accent: #3b82f6;
+      --accent-2: #0ea5e9;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --bg: #0b1020;
+      --panel: #11193a;
+      --text: #e9eefc;
+      --muted: #9fb2e1;
+      --grid-line: #2a3a75;
+      --solution: #ffd86b88;
+      --select: #9ae6ff66;
+      --found: #66ff9a88;
+    }
+    html, body {
+      background: linear-gradient(180deg, #0b1020 0%, #0d1330 100%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      margin: 0;
+      height: 100%;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 16px 48px;
+    }
+    header {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    h1 { font-size: 1.4rem; margin: 0; }
+    .card {
+      background: linear-gradient(180deg, #10194a 0%, #0e1540 100%);
+      border: 1px solid #1b2a65;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 16px;
+    }
+    @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+    .controls {
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+    }
+    textarea, input[type="number"] {
+      background: #0d1540;
+      border: 1px solid #1f2f74;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      outline: none;
+      min-width: 220px;
+    }
+    textarea { width: 100%; min-height: 140px; resize: vertical; }
+    label { font-size: 0.9rem; color: var(--muted); display: block; margin-bottom: 6px; }
+    .btn {
+      appearance: none; border: 0; border-radius: 10px;
+      padding: 10px 14px; font-weight: 700; color: white;
+      background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+      box-shadow: 0 8px 24px rgba(59,130,246,.35), inset 0 1px 0 rgba(255,255,255,.2);
+      cursor: pointer; transition: transform .05s ease, filter .15s ease;
+    }
+    .btn.secondary { background: #162255; color: #cfe1ff; box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
+    .btn:active { transform: translateY(1px); }
+
+    .grid {
+      display: grid;
+      gap: 2px;
+      background: var(--grid-line);
+      padding: 2px;
+      border-radius: 10px;
+      user-select: none;         /* avoid text selection while dragging */
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      touch-action: none;        /* enable custom touch dragging */
+      width: max-content;
+    }
+    .cell {
+      width: var(--cell);
+      height: var(--cell);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #eaf1ff;
+      background: #0f1842;
+      border-radius: 8px;
+      transition: transform .06s ease, background .12s ease, color .12s ease;
+    }
+    .cell:hover { transform: translateY(-1px); }
+    .cell.sel { background: var(--select); color: #07122e; }
+    .cell.sol { background: var(--solution); color: #101539; }
+    .cell.found { background: var(--found); color: #0b1b1d; }
+
+    .pill {
+      display: inline-flex; gap: 8px; align-items: center;
+      padding: 6px 10px; border-radius: 999px;
+      background: #0c1540; border: 1px solid #1a2a68; color: #cfe1ff; font-size: 0.9rem;
+      width: max-content;
+    }
+    .legend { display: grid; gap: 6px; font-size: 0.95rem; }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.2); box-shadow: inset 0 1px 0 rgba(255,255,255,.15); }
+    .small { font-size: 0.9rem; color: var(--muted); }
+    .ok { color: var(--good); }
+    .warn { color: var(--warn); }
+    .status { min-height: 20px; }
+    .muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Word Search — JavaScript (Drag to Select)</h1>
+      <span class="pill">🟦 JS only</span>
+    </header>
+
+    <div class="layout">
+      <!-- Left -->
+      <section class="card">
+        <div class="controls" style="margin-bottom:12px">
+          <div style="flex:1 1 420px">
+            <label for="words">Words (one per line)</label>
+            <textarea id="words" placeholder="CAT
+PYTHON
+ALGORITHM
+SEARCH
+MATRIX
+PUZZLE"></textarea>
+          </div>
+          <div class="side" style="min-width:220px; display:grid; gap:10px;">
+            <div>
+              <label for="size">Grid size</label>
+              <input id="size" type="number" min="8" max="30" value="12" />
+            </div>
+            <div class="controls">
+              <button class="btn" id="btn-generate">Generate</button>
+              <button class="btn secondary" id="btn-toggle">Show solution</button>
+            </div>
+            <div class="status small" id="status">Tip: Click and drag to select letters.</div>
+          </div>
+        </div>
+
+        <div id="grid" class="grid" style="grid-template-columns: repeat(12, var(--cell));"></div>
+      </section>
+
+      <!-- Right -->
+      <aside class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="pill">🧩 Word list</div>
+          <div id="fit-indicator" class="small muted">—</div>
+        </div>
+        <div id="legend" class="legend"></div>
+        <div class="small muted" style="margin-top:8px">
+          Supports horizontal, vertical, and diagonal selections (both directions).
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    /* ===========================
+       Generator (same as before)
+       =========================== */
+    const DIRECTIONS = [
+      [0, 1], [1, 0], [0, -1], [-1, 0],
+      [1, 1], [1, -1], [-1, 1], [-1, -1]
+    ];
+    const randInt = n => Math.floor(Math.random() * n);
+
+    function tryPlaceWord(grid, word, r0, c0, dr, dc) {
+      const n = grid.length;
+      const re = r0 + dr * (word.length - 1);
+      const ce = c0 + dc * (word.length - 1);
+      if (re < 0 || re >= n || ce < 0 || ce >= n) return null;
+
+      const coords = [];
+      for (let i = 0; i < word.length; i++) {
+        const r = r0 + dr * i, c = c0 + dc * i;
+        const cell = grid[r][c];
+        if (cell && cell !== word[i]) return null;
+        coords.push([r, c]);
+      }
+      coords.forEach(([r, c], i) => grid[r][c] = word[i]);
+      return coords;
+    }
+
+    function placeWord(grid, word) {
+      const n = grid.length;
+      for (let t = 0; t < 250; t++) {
+        const r = randInt(n), c = randInt(n);
+        const [dr, dc] = DIRECTIONS[randInt(DIRECTIONS.length)];
+        const placed = tryPlaceWord(grid, word, r, c, dr, dc);
+        if (placed) return placed;
+      }
+      return null;
+    }
+
+    function generateWordSearchJS(words, size = 12) {
+      // Normalize, dedupe, uppercase
+      const normalized = [];
+      const seen = new Set();
+      for (const w of words.map(w => w.trim()).filter(Boolean)) {
+        const up = w.toUpperCase();
+        if (!seen.has(up)) { seen.add(up); normalized.push(up); }
+      }
+      const sorted = [...normalized].sort((a, b) => b.length - a.length);
+
+      const grid = Array.from({ length: size }, () => Array(size).fill(""));
+      const placements = {}; // word -> coords
+      const unplaced = [];
+
+      for (const w of sorted) {
+        let coords = placeWord(grid, w);
+        if (!coords) {
+          const rev = w.split("").reverse().join("");
+          coords = placeWord(grid, rev);
+        }
+        if (coords) placements[w] = coords;
+        else unplaced.push(w);
+      }
+
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (!grid[r][c]) grid[r][c] = letters[randInt(letters.length)];
+        }
+      }
+
+      return {
+        grid: grid.map(row => row.join("")),
+        placements,
+        unplaced,
+        words: normalized,
+        size
+      };
+    }
+
+    /* ===========================
+       UI state & rendering
+       =========================== */
+    const gridEl = document.getElementById("grid");
+    const legendEl = document.getElementById("legend");
+    const fitIndicator = document.getElementById("fit-indicator");
+    const statusEl = document.getElementById("status");
+    const toggleBtn = document.getElementById("btn-toggle");
+
+    const palette = i => ([
+      "#ffd86b88","#6be6ff88","#a0ff6b88","#ff6bd688","#6b8bff88",
+      "#ff9a6b88","#6bffc888","#ff6b8b88","#b06bff88","#6bff9a88"
+    ][i % 10]);
+
+    let current = {
+      grid: [],
+      placements: {},      // word->coords
+      unplaced: [],
+      words: [],
+      size: 12,
+      solutionShown: false,
+      foundWords: new Set(), // words found by user
+    };
+
+    function readWords() {
+      return document.getElementById("words").value
+        .split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    }
+
+    function renderGrid(grid, size) {
+      gridEl.style.gridTemplateColumns = `repeat(${size}, var(--cell))`;
+      gridEl.innerHTML = "";
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const div = document.createElement("div");
+          div.className = "cell";
+          div.id = `cell-${r}-${c}`;
+          div.dataset.r = r;
+          div.dataset.c = c;
+          div.textContent = grid[r][c];
+          gridEl.appendChild(div);
+        }
+      }
+    }
+
+    function renderLegend(words, placements, unplaced) {
+      legendEl.innerHTML = "";
+      const idxByWord = new Map(words.map((w,i)=>[w,i]));
+      words.forEach((w) => {
+        const row = document.createElement("div");
+        row.className = "legend-item";
+        const sw = document.createElement("span");
+        sw.className = "swatch";
+        const isUnplaced = unplaced.includes(w);
+        const isFound = current.foundWords.has(w);
+        sw.style.background = isUnplaced ? "transparent" : (isFound ? "#66ff9aff" : palette(idxByWord.get(w)).replace("88","ff"));
+        sw.style.borderColor = isUnplaced ? "#2a3a75" : "rgba(0,0,0,.2)";
+        const label = document.createElement("span");
+        label.textContent = w;
+        const mark = document.createElement("span");
+        mark.className = isUnplaced ? "warn" : "ok";
+        mark.textContent = isUnplaced ? "⚠ not placed" : (isFound ? "✅ found" : "✔");
+        row.appendChild(sw);
+        row.appendChild(label);
+        row.appendChild(mark);
+        legendEl.appendChild(row);
+      });
+
+      if (unplaced.length === 0) {
+        fitIndicator.textContent = "All words placed ✔";
+        fitIndicator.className = "small ok";
+      } else {
+        fitIndicator.textContent = `${unplaced.length} didn’t fit — increase size`;
+        fitIndicator.className = "small warn";
+      }
+    }
+
+    function applySolution(show) {
+      // Clear solution and found styles
+      document.querySelectorAll(".cell").forEach(c => {
+        c.classList.remove("sol");
+        // keep 'found' if already found by user
+        if (!c.classList.contains("found")) {
+          c.style.background = "#0f1842";
+          c.style.color = "#eaf1ff";
+        }
+      });
+      if (!show) return;
+      const idxByWord = new Map(current.words.map((w,i)=>[w,i]));
+      Object.entries(current.placements).forEach(([word, coords]) => {
+        const idx = idxByWord.get(word) ?? 0;
+        const color = palette(idx);
+        coords.forEach(([r,c]) => {
+          const el = document.getElementById(`cell-${r}-${c}`);
+          if (el && !el.classList.contains("found")) {
+            el.classList.add("sol");
+            el.style.background = color;
+            el.style.color = "#0d1330";
+          }
+        });
+      });
+    }
+
+    /* ===========================
+       Drag selection logic
+       =========================== */
+    let dragging = false;
+    let startCell = null;
+    let lastPath = []; // last previewed coords
+
+    function getCellFromEvent(evt) {
+      const target = evt.target.closest(".cell");
+      if (!target) return null;
+      const r = parseInt(target.dataset.r, 10);
+      const c = parseInt(target.dataset.c, 10);
+      return { r, c, el: target };
+    }
+
+    function clearPreview() {
+      lastPath.forEach(([r,c]) => {
+        const el = document.getElementById(`cell-${r}-${c}`);
+        if (el && !el.classList.contains("found") && !el.classList.contains("sol")) {
+          el.classList.remove("sel");
+          el.style.background = "#0f1842";
+          el.style.color = "#eaf1ff";
+        } else if (el) {
+          el.classList.remove("sel");
+        }
+      });
+      lastPath = [];
+    }
+
+    function clampDir(dx) {
+      if (dx === 0) return 0;
+      return dx > 0 ? 1 : -1;
+    }
+
+    function isStraightLine(r0, c0, r1, c1) {
+      const dr = r1 - r0;
+      const dc = c1 - c0;
+      return (dr === 0) || (dc === 0) || (Math.abs(dr) === Math.abs(dc));
+    }
+
+    function lineCoords(r0, c0, r1, c1) {
+      // assumes straight line
+      const steps = Math.max(Math.abs(r1 - r0), Math.abs(c1 - c0)) + 1;
+      const dr = clampDir(r1 - r0);
+      const dc = clampDir(c1 - c0);
+      const coords = [];
+      for (let i = 0; i < steps; i++) {
+        coords.push([r0 + dr * i, c0 + dc * i]);
+      }
+      return coords;
+    }
+
+    function getWordFromCoords(coords) {
+      let s = "";
+      for (const [r,c] of coords) {
+        s += current.grid[r][c];
+      }
+      return s;
+    }
+
+    function previewSelection(r1, c1) {
+      if (!startCell) return;
+      clearPreview();
+      const { r: r0, c: c0 } = startCell;
+      if (!isStraightLine(r0, c0, r1, c1)) return; // ignore non straight paths
+      const coords = lineCoords(r0, c0, r1, c1);
+      lastPath = coords;
+      coords.forEach(([r,c]) => {
+        const el = document.getElementById(`cell-${r}-${c}`);
+        if (el && !el.classList.contains("found")) {
+          el.classList.add("sel");
+          el.style.background = "var(--select)";
+          el.style.color = "#07122e";
+        }
+      });
+    }
+
+    function commitSelection() {
+      if (lastPath.length === 0) return;
+      const forward = getWordFromCoords(lastPath);
+      const backward = forward.split("").reverse().join("");
+      const wordsSet = new Set(current.words);
+      let matchedWord = null;
+
+      // Try exact forward
+      if (wordsSet.has(forward)) matchedWord = forward;
+      // Try reversed mapping: if backward matches a word
+      if (!matchedWord && wordsSet.has(backward)) matchedWord = backward;
+
+      // Accept also if path corresponds to a placed word (robust to duplicates)
+      if (!matchedWord) {
+        for (const w of current.words) {
+          const p = current.placements[w];
+          if (!p) continue;
+          const a = JSON.stringify(p);
+          const b = JSON.stringify(lastPath);
+          const bRev = JSON.stringify([...lastPath].reverse());
+          if (a === b || a === bRev) { matchedWord = w; break; }
+        }
+      }
+
+      if (matchedWord && !current.unplaced.includes(matchedWord)) {
+        // Mark as found (lock cells)
+        current.foundWords.add(matchedWord);
+        lastPath.forEach(([r,c]) => {
+          const el = document.getElementById(`cell-${r}-${c}`);
+          if (el) {
+            el.classList.remove("sel", "sol");
+            el.classList.add("found");
+            el.style.background = "var(--found)";
+            el.style.color = "#0b1b1d";
+          }
+        });
+        renderLegend(current.words, current.placements, current.unplaced);
+
+        // Win message if all placed words found
+        const totalPlaceable = current.words.filter(w => !current.unplaced.includes(w)).length;
+        if (current.foundWords.size === totalPlaceable) {
+          statusEl.textContent = "🎉 All words found!";
+        } else {
+          statusEl.textContent = `Found: ${matchedWord} (${current.foundWords.size}/${totalPlaceable})`;
+        }
+      } else {
+        // No match; just clear preview
+        clearPreview();
+      }
+    }
+
+    function attachDragHandlers() {
+      // Mouse
+      gridEl.addEventListener("mousedown", (e) => {
+        const cell = getCellFromEvent(e);
+        if (!cell) return;
+        dragging = true;
+        startCell = cell;
+        previewSelection(cell.r, cell.c);
+        e.preventDefault();
+      });
+
+      gridEl.addEventListener("mousemove", (e) => {
+        if (!dragging) return;
+        const cell = getCellFromEvent(e);
+        if (!cell) return;
+        previewSelection(cell.r, cell.c);
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (!dragging) return;
+        dragging = false;
+        commitSelection();
+        clearPreview();
+        startCell = null;
+      });
+
+      // Touch
+      gridEl.addEventListener("touchstart", (e) => {
+        const t = e.touches[0];
+        const el = document.elementFromPoint(t.clientX, t.clientY);
+        const cell = el?.closest?.(".cell") ? { r: +el.closest(".cell").dataset.r, c: +el.closest(".cell").dataset.c } : null;
+        if (!cell) return;
+        dragging = true;
+        startCell = cell;
+        previewSelection(cell.r, cell.c);
+        e.preventDefault();
+      }, { passive: false });
+
+      gridEl.addEventListener("touchmove", (e) => {
+        if (!dragging) return;
+        const t = e.touches[0];
+        const el = document.elementFromPoint(t.clientX, t.clientY);
+        const cellEl = el?.closest?.(".cell");
+        if (!cellEl) return;
+        previewSelection(+cellEl.dataset.r, +cellEl.dataset.c);
+        e.preventDefault();
+      }, { passive: false });
+
+      window.addEventListener("touchend", () => {
+        if (!dragging) return;
+        dragging = false;
+        commitSelection();
+        clearPreview();
+        startCell = null;
+      });
+    }
+
+    /* ===========================
+       Controls
+       =========================== */
+    function generate() {
+      const words = readWords();
+      const size = Math.max(8, Math.min(30, parseInt(document.getElementById("size").value || "12", 10)));
+      if (words.length === 0) {
+        statusEl.textContent = "Add some words first (one per line).";
+        return;
+      }
+
+      const js = generateWordSearchJS(words, size);
+      current.grid = js.grid;
+      current.placements = js.placements;
+      current.unplaced = js.unplaced;
+      current.size = js.size;
+      current.words = js.words;
+      current.solutionShown = false;
+      current.foundWords = new Set();
+
+      renderGrid(current.grid, current.size);
+      renderLegend(current.words, current.placements, current.unplaced);
+      applySolution(false);
+
+      statusEl.textContent = `Made a ${current.size}×${current.size} puzzle. ${Object.keys(current.placements).length} placed, ${current.unplaced.length} unplaced. Drag to select words.`;
+      toggleBtn.textContent = "Show solution";
+    }
+
+    function toggleSolution() {
+      current.solutionShown = !current.solutionShown;
+      applySolution(current.solutionShown);
+      toggleBtn.textContent = current.solutionShown ? "Hide solution" : "Show solution";
+    }
+
+    document.getElementById("btn-generate").addEventListener("click", generate);
+    document.getElementById("btn-toggle").addEventListener("click", toggleSolution);
+
+    // Init defaults
+    document.getElementById("words").value = [
+      "CAT", "PYTHON", "ALGORITHM", "SEARCH", "MATRIX",
+      "PUZZLE", "GRID", "CODE", "LOGIC", "DATA"
+    ].join("\n");
+
+    // Initial placeholder
+    const initialSize = parseInt(document.getElementById("size").value, 10) || 12;
+    renderGrid(Array.from({length: initialSize},()=> " ".repeat(initialSize)), initialSize);
+
+    // Attach interaction
+    attachDragHandlers();
+  </script>
+</body>
+</html>
