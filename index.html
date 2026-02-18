@@ -1,469 +1,530 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Word Search — Fixed Words per Line (Legend)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --cell: 34px;
-      --accent: #3b82f6;
-      --accent-2: #0ea5e9;
-      --good: #22c55e;
-      --warn: #f59e0b;
-      --bg: #0b1020;
-      --panel: #11193a;
-      --text: #e9eefc;
-      --muted: #9fb2e1;
-      --grid-line: #2a3a75;
-      --solution: #ffd86b88;
-      --select: #9ae6ff66;
-      --found: #66ff9a88;
-    }
-    html, body {
-      background: linear-gradient(180deg, #0b1020 0%, #0d1330 100%);
-      color: var(--text);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-      margin: 0; height: 100%;
-    }
-    .wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px 48px; }
-    header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    h1 { font-size: 1.4rem; margin: 0; }
-    .card {
-      background: linear-gradient(180deg, #10194a 0%, #0e1540 100%);
-      border: 1px solid #1b2a65; border-radius: 14px; padding: 16px;
-      box-shadow: 0 6px 22px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
-    }
-    .layout { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; }
-    @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
-    .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    textarea, input[type="number"] {
-      background: #0d1540; border: 1px solid #1f2f74; color: var(--text);
-      border-radius: 10px; padding: 10px 12px; outline: none; min-width: 160px;
-    }
-    textarea { width: 100%; min-height: 140px; resize: vertical; }
-    label { font-size: 0.9rem; color: var(--muted); display: block; margin-bottom: 6px; }
-    .btn {
-      appearance: none; border: 0; border-radius: 10px; padding: 10px 14px;
-      font-weight: 700; color: white; cursor: pointer;
-      background: linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
-      box-shadow: 0 8px 24px rgba(59,130,246,.35), inset 0 1px 0 rgba(255,255,255,.2);
-      transition: transform .05s ease, filter .15s ease;
-    }
-    .btn.secondary { background: #162255; color: #cfe1ff; box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
-    .btn:active { transform: translateY(1px); }
-
-    .grid {
-      display: grid; gap: 2px; background: var(--grid-line);
-      padding: 2px; border-radius: 10px; user-select: none; touch-action: none; width: max-content;
-    }
-    .cell {
-      width: var(--cell); height: var(--cell); display: grid; place-items: center;
-      font-weight: 700; letter-spacing: .5px; color: #eaf1ff; background: #0f1842;
-      border-radius: 8px; transition: transform .06s ease, background .12s ease, color .12s ease;
-    }
-    .cell:hover { transform: translateY(-1px); }
-    .cell.sel { background: var(--select); color: #07122e; }
-    .cell.sol { background: var(--solution); color: #101539; }
-    .cell.found { background: var(--found); color: #0b1b1d; }
-
-    .pill {
-      display: inline-flex; gap: 8px; align-items: center; padding: 6px 10px; border-radius: 999px;
-      background: #0c1540; border: 1px solid #1a2a68; color: #cfe1ff; font-size: 0.9rem;
-    }
-    .small { font-size: .9rem; color: var(--muted); }
-    .ok { color: var(--good); } .warn { color: var(--warn); }
-    .status { min-height: 20px; }
-
-    /* Legend with fixed words per line using CSS Grid columns */
-    .legend {
-      display: grid; gap: 8px 12px; /* row gap / column gap */
-      grid-auto-rows: minmax(24px, auto);
-    }
-    .legend-item {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: #0c1540; border: 1px solid #1a2a68; padding: 6px 10px; border-radius: 999px;
-      min-width: 0; white-space: nowrap;
-    }
-    .swatch {
-      width: 14px; height: 14px; border-radius: 3px;
-      border: 1px solid rgba(0,0,0,0.2); box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Number Champ – Kids Math Game (Age 9)</title>
+<style>
+  :root{
+    --bg:#0f172a;        /* slate-900 */
+    --card:#111827;      /* gray-900 */
+    --muted:#cbd5e1;     /* slate-300 */
+    --accent:#22c55e;    /* green-500 */
+    --accent-2:#38bdf8;  /* sky-400 */
+    --warning:#f59e0b;   /* amber-500 */
+    --danger:#ef4444;    /* red-500 */
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+    background: radial-gradient(1200px 800px at 30% -10%, #1e293b 0%, #0b1224 60%, #050816 100%), var(--bg);
+    color:#f8fafc;
+    min-height:100svh;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+  }
+  .app{
+    width:min(820px, 100%);
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    overflow:hidden;
+  }
+  header{
+    padding:18px 20px;
+    display:flex; gap:12px; align-items:center; justify-content:space-between;
+    background: rgba(17,24,39,0.7);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(6px);
+  }
+  .title{
+    font-weight:800; letter-spacing:0.2px; font-size:1.1rem;
+    display:flex; align-items:center; gap:10px;
+  }
+  .title .badge{
+    font-size:0.8rem; font-weight:700; color:#052e16;
+    background:linear-gradient(180deg,#86efac,#22c55e);
+    padding:2px 8px; border-radius:999px;
+  }
+  .settings{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:flex-end;
+  }
+  .seg, .select, .btn{
+    background:#0b1221; color:#e2e8f0;
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:10px;
+    padding:10px 12px;
+  }
+  .seg{display:flex; gap:6px}
+  .seg button{
+    background:transparent; color:#cbd5e1; border:none; border-radius:8px; padding:8px 10px; font-weight:700;
+  }
+  .seg button.active{ background:#13213a; color:#86efac; border:1px solid rgba(34,197,94,0.4)}
+  .select{display:flex; gap:8px; align-items:center}
+  .select label{font-size:0.85rem; color:#a3b2c7}
+  .select select{
+    background:#0f1a31; color:#e2e8f0; border:1px solid rgba(255,255,255,0.12);
+    border-radius:8px; padding:8px; font-weight:700;
+  }
+  main{ padding:20px; display:grid; grid-template-columns:1fr 320px; gap:16px}
+  @media (max-width:880px){
+    main{ grid-template-columns:1fr; }
+  }
+  .game{
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:14px; padding:16px;
+  }
+  .status{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    margin-bottom:8px;
+  }
+  .chips{display:flex; gap:8px; flex-wrap:wrap}
+  .chip{
+    background:#0c1427; border:1px solid rgba(255,255,255,0.08); color:#cde3ff;
+    padding:6px 10px; border-radius:999px; font-weight:700; font-size:0.9rem;
+  }
+  .chip .good{ color:var(--accent);}
+  .chip .bad{ color:var(--danger);}
+  .progress{
+    height:10px; background:#0b1221; border-radius:999px; overflow:hidden; border:1px solid rgba(255,255,255,0.08);
+  }
+  .bar{ height:100%; width:0%; background:linear-gradient(90deg, #22c55e, #38bdf8); transition:width .25s ease}
+  .card{
+    margin-top:10px; background:linear-gradient(180deg, rgba(56,189,248,0.15), rgba(34,197,94,0.15));
+    border:1px solid rgba(56,189,248,0.35); border-radius:14px; padding:18px;
+  }
+  .question{
+    font-size: clamp(28px, 6vw, 44px); font-weight:900; text-align:center; letter-spacing:1px;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.35);
+  }
+  .options{
+    margin-top:14px; display:grid; gap:12px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width:460px){ .options{ grid-template-columns: 1fr; } }
+  .opt{
+    border:1px solid rgba(255,255,255,0.15);
+    background: #0b1221;
+    color:#e5f0ff;
+    border-radius:12px; padding:14px;
+    font-size: clamp(18px, 4.8vw, 24px); font-weight:800;
+    text-align:center;
+    touch-action: manipulation;
+  }
+  .opt.correct{ outline:3px solid var(--accent); background:#032911}
+  .opt.wrong{ outline:3px solid var(--danger); background:#290308}
+  .actions{ margin-top:10px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+  .btn{
+    font-weight:800; letter-spacing:0.4px; cursor:pointer; padding:12px 16px; min-width:120px;
+    background: linear-gradient(180deg, #0f1a31, #0b1221);
+  }
+  .btn.primary{ background:linear-gradient(180deg,#22c55e,#16a34a); color:#052e16; border:none }
+  .btn.info{ background:linear-gradient(180deg,#38bdf8,#0ea5e9); color:#011826; border:none }
+  .btn.warn{ background:linear-gradient(180deg,#f59e0b,#d97706); color:#3a1f00; border:none }
+  .sidebar{
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:14px; padding:16px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .board h3{ margin:0 0 8px 0}
+  .board ol{ margin:0; padding:0 0 0 18px }
+  .board li{ margin:4px 0; font-weight:700; color:#dbeafe}
+  .small{ font-size:0.85rem; color:#abc0d6 }
+  .ops{ display:flex; gap:8px; flex-wrap:wrap }
+  .op-toggle{
+    background:#0b1221; border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 10px; display:flex; gap:8px; align-items:center;
+  }
+  .op-toggle input{ transform:scale(1.1) }
+</style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="app">
     <header>
-      <h1>Word Search — Fixed Words per Line</h1>
-      <span class="pill">📱 Mobile-friendly</span>
+      <div class="title">
+        <span style="font-size:1.4rem">🧮</span>
+        Number Champ
+        <span class="badge">Age 9</span>
+      </div>
+      <div class="settings">
+        <div class="seg" id="modeSeg" role="tablist" aria-label="Mode">
+          <button class="active" data-mode="practice" aria-selected="true">Practice</button>
+          <button data-mode="timed" aria-selected="false">Timed</button>
+        </div>
+        <div class="select">
+          <label for="timerSel">Timer</label>
+          <select id="timerSel" disabled>
+            <option value="30">30s</option>
+            <option value="60" selected>60s</option>
+            <option value="120">120s</option>
+          </select>
+        </div>
+        <div class="select">
+          <label for="diffSel">Difficulty</label>
+          <select id="diffSel">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+      </div>
     </header>
 
-    <div class="layout">
-      <!-- Left: Game -->
-      <section class="card">
-        <div class="controls" style="margin-bottom:12px">
-          <div style="flex:1 1 420px">
-            <label for="words">Words (one per line)</label>
-            <textarea id="words" placeholder=""></textarea>
+    <main>
+      <section class="game" aria-live="polite">
+        <div class="status">
+          <div class="chips">
+            <div class="chip">Score: <span id="score">0</span></div>
+            <div class="chip">Streak: <span id="streak">0</span></div>
+            <div class="chip">Correct: <span class="good" id="correct">0</span></div>
+            <div class="chip">Wrong: <span class="bad" id="wrong">0</span></div>
           </div>
-          <div class="side" style="min-width:240px; display:grid; gap:10px;">
-            <div>
-              <label for="size">Grid size</label>
-              <input id="size" type="number" min="8" max="30" value="12" />
+          <div style="min-width:180px; flex:1; max-width:320px; margin-left:auto">
+            <div class="progress" title="Time left">
+              <div class="bar" id="timeBar"></div>
             </div>
-            <div>
-              <label for="wpr">Words per line (legend)</label>
-              <input id="wpr" type="number" min="1" max="6" value="3" />
-            </div>
-            <div class="controls">
-              <button class="btn" id="btn-generate">Generate</button>
-              <button class="btn secondary" id="btn-toggle">Show solution</button>
-            </div>
-            <div class="status small" id="status">Tip: Click/touch and drag to select words.</div>
           </div>
         </div>
 
-        <div id="grid" class="grid" style="grid-template-columns: repeat(12, var(--cell));"></div>
+        <div class="card">
+          <div class="question" id="question">Tap “Start” to play!</div>
+          <div class="options" id="options" role="group" aria-label="Answer choices"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" id="startBtn">▶ Start</button>
+          <button class="btn info" id="skipBtn" disabled>Skip</button>
+          <button class="btn warn" id="resetBtn">Reset</button>
+        </div>
       </section>
 
-      <!-- Right: Legend with fixed words per line -->
-      <aside class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div class="pill">🧩 Word list</div>
-          <div id="fit-indicator" class="small">—</div>
+      <aside class="sidebar">
+        <div class="ops">
+          <label class="op-toggle"><input type="checkbox" class="op" value="add" checked /> Add (+)</label>
+          <label class="op-toggle"><input type="checkbox" class="op" value="sub" checked /> Subtract (−)</label>
+          <label class="op-toggle"><input type="checkbox" class="op" value="mul" checked /> Multiply (×)</label>
+          <label class="op-toggle"><input type="checkbox" class="op" value="div" checked /> Divide (÷)</label>
         </div>
-        <div id="legend" class="legend"></div>
-        <div class="small" style="margin-top:8px">
-          Horizontal, vertical, and diagonal (both directions) supported.
+        <div class="board">
+          <h3>🏆 Leaderboard (local)</h3>
+          <ol id="board"></ol>
+          <div class="small">Best scores are saved on this device.</div>
+          <button class="btn" id="clearBoardBtn" style="margin-top:8px">Clear Leaderboard</button>
+        </div>
+        <div class="small">
+          Tips: Choose Practice for calm learning, Timed for challenge. Streaks add bonus points. Division uses whole-number results only.
         </div>
       </aside>
-    </div>
+    </main>
   </div>
 
-  <script>
-    /* ========= Generator ========= */
-    const DIRECTIONS = [
-      [0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]
-    ];
-    const randInt = n => Math.floor(Math.random() * n);
+<script>
+  (function(){
+    const qEl = document.getElementById('question');
+    const optsEl = document.getElementById('options');
+    const scoreEl = document.getElementById('score');
+    const streakEl = document.getElementById('streak');
+    const correctEl = document.getElementById('correct');
+    const wrongEl = document.getElementById('wrong');
+    const timeBar = document.getElementById('timeBar');
+    const startBtn = document.getElementById('startBtn');
+    const skipBtn = document.getElementById('skipBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const clearBoardBtn = document.getElementById('clearBoardBtn');
+    const boardEl = document.getElementById('board');
+    const diffSel = document.getElementById('diffSel');
+    const timerSel = document.getElementById('timerSel');
+    const modeSeg = document.getElementById('modeSeg');
+    const opChecks = Array.from(document.querySelectorAll('.op'));
 
-    function tryPlaceWord(grid, word, r0, c0, dr, dc) {
-      const n = grid.length;
-      const re = r0 + dr * (word.length - 1);
-      const ce = c0 + dc * (word.length - 1);
-      if (re < 0 || re >= n || ce < 0 || ce >= n) return null;
-      const coords = [];
-      for (let i=0;i<word.length;i++){
-        const r = r0 + dr*i, c = c0 + dc*i;
-        const cell = grid[r][c];
-        if (cell && cell !== word[i]) return null;
-        coords.push([r,c]);
-      }
-      coords.forEach(([r,c],i)=> grid[r][c] = word[i]);
-      return coords;
+    let state = {
+      running:false,
+      practice:true,
+      timeLimit:60,
+      timeLeft:60,
+      timerId:null,
+      score:0, streak:0, correct:0, wrong:0,
+      answer:null,
+      currentQ:null
+    };
+
+    const randInt = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    function rangesForDifficulty(){
+      const d = diffSel.value;
+      if(d==='easy')   return {small:10, big:12};
+      if(d==='hard')   return {small:20, big:12}; // small used for +/- range, big for ×/÷ table
+      return {small:15, big:12}; // medium
     }
-    function placeWord(grid, word) {
-      const n = grid.length;
-      for (let t=0;t<250;t++){
-        const r = randInt(n), c = randInt(n);
-        const [dr,dc] = DIRECTIONS[randInt(DIRECTIONS.length)];
-        const placed = tryPlaceWord(grid, word, r, c, dr, dc);
-        if (placed) return placed;
-      }
-      return null;
+
+    function genAddSub(op){
+      const {small} = rangesForDifficulty();
+      let a = randInt(0, small), b = randInt(0, small);
+      if(op==='sub' && b>a){ [a,b]=[b,a]; }
+      const ans = op==='add' ? a+b : a-b;
+      const text = `${a} ${op==='add' ? '+' : '−'} ${b} = ?`;
+      return {text, ans};
     }
-    function generateWordSearchJS(words, size=12){
-      // normalize to ONE WORD PER LINE strictly
-      const normalized = [];
-      const seen = new Set();
-      for (const wRaw of words){
-        // split by non-letters to be strict; keep A–Z only
-        const parts = wRaw.toUpperCase().split(/[^A-Z]+/).filter(Boolean);
-        for (const part of parts){
-          if (!seen.has(part)){ seen.add(part); normalized.push(part); }
-        }
+
+    function genMulDiv(op){
+      const {big} = rangesForDifficulty();
+      let a = randInt(1, big), b = randInt(1, big);
+      if(op==='mul'){
+        const ans = a*b;
+        return {text:`${a} × ${b} = ?`, ans};
+      } else {
+        // ensure whole-number division: (a*b) ÷ a = b
+        const prod = a*b;
+        const ans = b;
+        return {text:`${prod} ÷ ${a} = ?`, ans};
       }
-      const sorted = [...normalized].sort((a,b)=> b.length - a.length);
-      const grid = Array.from({length:size},()=> Array(size).fill(""));
-      const placements = {};
-      const unplaced = [];
-      for (const w of sorted){
-        let coords = placeWord(grid, w);
-        if (!coords){
-          const rev = w.split("").reverse().join("");
-          coords = placeWord(grid, rev);
-        }
-        if (coords) placements[w] = coords;
-        else unplaced.push(w);
+    }
+
+    function generateQuestion(){
+      const enabledOps = opChecks.filter(c=>c.checked).map(c=>c.value);
+      if(enabledOps.length===0){
+        // force at least addition
+        opChecks.find(c=>c.value==='add').checked = true;
+        enabledOps.push('add');
       }
-      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      for (let r=0;r<size;r++){
-        for (let c=0;c<size;c++){
-          if (!grid[r][c]) grid[r][c] = letters[randInt(letters.length)];
-        }
+      const op = pick(enabledOps);
+      let q;
+      if(op==='add' || op==='sub') q = genAddSub(op);
+      else q = genMulDiv(op);
+
+      // Create believable choices
+      const correct = q.ans;
+      const choices = new Set([correct]);
+      while(choices.size<4){
+        let delta = pick([-3,-2,-1,1,2,3,4,-4,5,-5]);
+        let fake = correct + delta;
+        // keep positives and reasonable range
+        if(fake<0) fake = Math.abs(fake)+randInt(0,3);
+        choices.add(fake);
       }
-      return {
-        grid: grid.map(row=>row.join("")),
-        placements, unplaced, words: normalized, size
+      const shuffled = Array.from(choices).sort(()=>Math.random()-0.5);
+      return {question:q.text, answer:correct, options:shuffled};
+    }
+
+    function renderQuestion(){
+      const q = generateQuestion();
+      state.currentQ = q;
+      state.answer = q.answer;
+      qEl.textContent = q.question;
+      optsEl.innerHTML = '';
+      q.options.forEach(val=>{
+        const btn = document.createElement('button');
+        btn.className = 'opt';
+        btn.textContent = val;
+        btn.setAttribute('aria-label', `Answer ${val}`);
+        btn.addEventListener('click', ()=> choose(val, btn));
+        optsEl.appendChild(btn);
+      });
+    }
+
+    function updateHUD(){
+      scoreEl.textContent = state.score;
+      streakEl.textContent = state.streak;
+      correctEl.textContent = state.correct;
+      wrongEl.textContent = state.wrong;
+    }
+
+    function choose(val, btn){
+      if(!state.running) return;
+      const children = Array.from(optsEl.children);
+      children.forEach(b=>b.disabled=true);
+      if(val===state.answer){
+        btn.classList.add('correct');
+        state.correct++;
+        state.streak++;
+        let base = 10;
+        let bonus = Math.max(0, state.streak-1)*2; // streak bonus
+        state.score += base + bonus;
+        beep(660, 80); setTimeout(()=>beep(880, 90), 90);
+      } else {
+        btn.classList.add('wrong');
+        // reveal correct
+        const correctBtn = children.find(b=> +b.textContent === state.answer);
+        if(correctBtn) correctBtn.classList.add('correct');
+        state.wrong++;
+        state.streak = 0;
+        beep(220, 150);
+      }
+      updateHUD();
+      setTimeout(()=> {
+        if(state.running) renderQuestion();
+      }, 450);
+    }
+
+    function start(){
+      state.running = true;
+      skipBtn.disabled = false;
+      startBtn.disabled = true;
+      state.score=0; state.streak=0; state.correct=0; state.wrong=0;
+      updateHUD();
+      // timer
+      if(state.practice){
+        state.timeLeft = 1; // not used in practice
+        timeBar.style.width = '0%';
+      } else {
+        state.timeLeft = state.timeLimit;
+        tickTimer(true);
+      }
+      renderQuestion();
+      qEl.focus();
+    }
+
+    function stop(endReason='Finished'){
+      state.running = false;
+      startBtn.disabled = false;
+      skipBtn.disabled = true;
+      if(state.timerId) clearInterval(state.timerId);
+      // Save to leaderboard for timed mode
+      if(!state.practice){
+        saveScore({score:state.score, correct:state.correct, wrong:state.wrong, time:state.timeLimit, date:Date.now(), level:diffSel.value});
+        loadBoard();
+      }
+      qEl.textContent = `${endReason}. Your score: ${state.score}`;
+      optsEl.innerHTML = '';
+    }
+
+    function tickTimer(starting=false){
+      if(state.timerId) clearInterval(state.timerId);
+      const total = state.timeLimit;
+      function draw(){
+        const pct = Math.max(0, Math.min(100, (state.timeLeft/total)*100));
+        timeBar.style.width = pct + '%';
+        if(pct<=25) timeBar.style.background = `linear-gradient(90deg, var(--danger), var(--warning))`;
+        else timeBar.style.background = `linear-gradient(90deg, #22c55e, #38bdf8)`;
+      }
+      if(starting) draw();
+      state.timerId = setInterval(()=>{
+        state.timeLeft--;
+        draw();
+        if(state.timeLeft<=0){
+          clearInterval(state.timerId);
+          stop('Time up');
+        }
+      }, 1000);
+    }
+
+    function skip(){
+      if(!state.running) return;
+      state.streak = 0;
+      updateHUD();
+      renderQuestion();
+    }
+
+    function reset(){
+      if(state.timerId) clearInterval(state.timerId);
+      state = {
+        running:false, practice:state.practice, timeLimit:state.timeLimit, timeLeft:state.timeLimit,
+        timerId:null, score:0, streak:0, correct:0, wrong:0, answer:null, currentQ:null
       };
+      updateHUD();
+      qEl.textContent = 'Tap “Start” to play!';
+      optsEl.innerHTML = '';
+      timeBar.style.width = '0%';
+      startBtn.disabled = false;
+      skipBtn.disabled = true;
     }
 
-    /* ========= UI & State ========= */
-    const gridEl = document.getElementById("grid");
-    const legendEl = document.getElementById("legend");
-    const fitIndicator = document.getElementById("fit-indicator");
-    const statusEl = document.getElementById("status");
-    const toggleBtn = document.getElementById("btn-toggle");
-    const wprInput = document.getElementById("wpr");
-
-    const palette = i => ([
-      "#ffd86b88","#6be6ff88","#a0ff6b88","#ff6bd688","#6b8bff88",
-      "#ff9a6b88","#6bffc888","#ff6b8b88","#b06bff88","#6bff9a88"
-    ][i % 10]);
-
-    let current = {
-      grid: [], placements: {}, unplaced: [], words: [],
-      size: 12, solutionShown: false, foundWords: new Set()
-    };
-
-    function readWordsStrict() {
-      // Enforce ONE WORD PER LINE. If user pasted commas/spaces, we fix it.
-      const raw = document.getElementById("words").value;
-      const lines = raw.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-      // Also normalize: split non-letters to keep the rule strict
-      const fixed = [];
-      for (const line of lines){
-        const parts = line.toUpperCase().split(/[^A-Z]+/).filter(Boolean);
-        fixed.push(...parts);
-      }
-      // write back as single word per line (for clarity)
-      document.getElementById("words").value = fixed.join("\n");
-      return fixed;
-    }
-
-    function renderGrid(grid, size){
-      gridEl.style.gridTemplateColumns = `repeat(${size}, var(--cell))`;
-      gridEl.innerHTML = "";
-      for (let r=0;r<size;r++){
-        for (let c=0;c<size;c++){
-          const d = document.createElement("div");
-          d.className = "cell";
-          d.id = `cell-${r}-${c}`;
-          d.dataset.r = r; d.dataset.c = c;
-          d.textContent = grid[r][c];
-          gridEl.appendChild(d);
-        }
-      }
-    }
-
-    function renderLegend(words, placements, unplaced){
-      // Fixed words per line using CSS Grid columns
-      const cols = Math.max(1, Math.min(6, parseInt(wprInput.value || "3", 10)));
-      legendEl.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
-      legendEl.innerHTML = "";
-
-      const idxByWord = new Map(words.map((w,i)=>[w,i]));
-      for (const w of words){
-        const isUnplaced = unplaced.includes(w);
-        const isFound = current.foundWords.has(w);
-        const row = document.createElement("div");
-        row.className = "legend-item";
-        const sw = document.createElement("span");
-        sw.className = "swatch";
-        sw.style.background = isUnplaced
-            ? "transparent"
-            : (isFound ? "#66ff9aff" : palette(idxByWord.get(w)).replace("88","ff"));
-        sw.style.borderColor = isUnplaced ? "#2a3a75" : "rgba(0,0,0,.2)";
-        const label = document.createElement("span");
-        label.textContent = w;
-        const mark = document.createElement("span");
-        mark.className = isUnplaced ? "warn" : "ok";
-        mark.textContent = isUnplaced ? "⚠ not placed" : (isFound ? "✅ found" : "✔");
-        row.appendChild(sw); row.appendChild(label); row.appendChild(mark);
-        legendEl.appendChild(row);
-      }
-
-      if (unplaced.length === 0){
-        fitIndicator.textContent = "All words placed ✔"; fitIndicator.className = "small ok";
-      } else {
-        fitIndicator.textContent = `${unplaced.length} didn’t fit — increase size`; fitIndicator.className = "small warn";
-      }
-    }
-
-    function applySolution(show){
-      document.querySelectorAll(".cell").forEach(c=>{
-        c.classList.remove("sol");
-        if (!c.classList.contains("found")){
-          c.style.background = "#0f1842"; c.style.color = "#eaf1ff";
-        }
+    function onModeChange(newMode){
+      const isPractice = newMode==='practice';
+      state.practice = isPractice;
+      timerSel.disabled = isPractice;
+      Array.from(modeSeg.querySelectorAll('button')).forEach(b=>{
+        b.classList.toggle('active', b.dataset.mode===newMode);
+        b.setAttribute('aria-selected', b.dataset.mode===newMode ? 'true':'false');
       });
-      if (!show) return;
-      const idxByWord = new Map(current.words.map((w,i)=>[w,i]));
-      for (const [word,coords] of Object.entries(current.placements)){
-        const idx = idxByWord.get(word) ?? 0;
-        const color = palette(idx);
-        for (const [r,c] of coords){
-          const el = document.getElementById(`cell-${r}-${c}`);
-          if (el && !el.classList.contains("found")){
-            el.classList.add("sol");
-            el.style.background = color; el.style.color = "#0d1330";
-          }
-        }
+      reset();
+    }
+
+    function onTimerChange(){
+      state.timeLimit = parseInt(timerSel.value,10) || 60;
+      state.timeLeft = state.timeLimit;
+      timeBar.style.width = '0%';
+    }
+
+    function saveScore(entry){
+      const key='number_champ_scores_v1';
+      const arr = JSON.parse(localStorage.getItem(key) || '[]');
+      arr.push(entry);
+      arr.sort((a,b)=> b.score - a.score);
+      localStorage.setItem(key, JSON.stringify(arr.slice(0,10)));
+    }
+
+    function loadBoard(){
+      const key='number_champ_scores_v1';
+      const arr = JSON.parse(localStorage.getItem(key) || '[]');
+      boardEl.innerHTML = '';
+      if(arr.length===0){
+        boardEl.innerHTML = '<li>No scores yet – try Timed mode!</li>';
+        return;
       }
-    }
-
-    /* ========= Drag selection ========= */
-    let dragging = false, startCell = null, lastPath = [];
-
-    const getCellFromEvent = (evt) => {
-      const t = evt.target.closest?.(".cell");
-      if (!t) return null;
-      return { r: +t.dataset.r, c: +t.dataset.c, el: t };
-    };
-    const clampDir = dx => dx === 0 ? 0 : (dx > 0 ? 1 : -1);
-    const isStraight = (r0,c0,r1,c1) =>
-      (r0===r1) || (c0===c1) || (Math.abs(r1-r0)===Math.abs(c1-c0));
-    function lineCoords(r0,c0,r1,c1){
-      const steps = Math.max(Math.abs(r1-r0), Math.abs(c1-c0)) + 1;
-      const dr = clampDir(r1-r0), dc = clampDir(c1-c0);
-      const coords = []; for (let i=0;i<steps;i++) coords.push([r0+dr*i, c0+dc*i]);
-      return coords;
-    }
-    function clearPreview(){
-      lastPath.forEach(([r,c])=>{
-        const el = document.getElementById(`cell-${r}-${c}`);
-        if (!el) return;
-        el.classList.remove("sel");
-        if (!el.classList.contains("found") && !el.classList.contains("sol")){
-          el.style.background = "#0f1842"; el.style.color = "#eaf1ff";
-        }
-      });
-      lastPath = [];
-    }
-    function preview(r1,c1){
-      if (!startCell) return;
-      clearPreview();
-      const {r:r0, c:c0} = startCell;
-      if (!isStraight(r0,c0,r1,c1)) return;
-      const coords = lineCoords(r0,c0,r1,c1);
-      lastPath = coords;
-      for (const [r,c] of coords){
-        const el = document.getElementById(`cell-${r}-${c}`);
-        if (el && !el.classList.contains("found")){
-          el.classList.add("sel");
-          el.style.background = "var(--select)"; el.style.color = "#07122e";
-        }
-      }
-    }
-    function commit(){
-      if (lastPath.length===0) return;
-      const forward = lastPath.map(([r,c])=> current.grid[r][c]).join("");
-      const backward = [...forward].reverse().join("");
-      const set = new Set(current.words);
-      let matched = null;
-
-      if (set.has(forward)) matched = forward;
-      if (!matched && set.has(backward)) matched = backward;
-      if (!matched){
-        for (const w of current.words){
-          const p = current.placements[w]; if (!p) continue;
-          const a = JSON.stringify(p);
-          const b = JSON.stringify(lastPath);
-          const br = JSON.stringify([...lastPath].reverse());
-          if (a===b || a===br){ matched = w; break; }
-        }
-      }
-      if (matched && !current.unplaced.includes(matched)){
-        current.foundWords.add(matched);
-        for (const [r,c] of lastPath){
-          const el = document.getElementById(`cell-${r}-${c}`);
-          if (el){
-            el.classList.remove("sel","sol");
-            el.classList.add("found");
-            el.style.background = "var(--found)";
-            el.style.color = "#0b1b1d";
-          }
-        }
-        renderLegend(current.words, current.placements, current.unplaced);
-        const total = current.words.filter(w=>!current.unplaced.includes(w)).length;
-        statusEl.textContent = (current.foundWords.size===total)
-          ? "🎉 All words found!"
-          : `Found: ${matched} (${current.foundWords.size}/${total})`;
-      } else {
-        clearPreview();
-      }
-    }
-
-    function attachDragHandlers(){
-      // Mouse
-      gridEl.addEventListener("mousedown", (e)=>{
-        const cell = getCellFromEvent(e); if (!cell) return;
-        dragging = true; startCell = cell; preview(cell.r, cell.c); e.preventDefault();
-      });
-      gridEl.addEventListener("mousemove", (e)=>{
-        if (!dragging) return; const cell = getCellFromEvent(e); if (!cell) return;
-        preview(cell.r, cell.c);
-      });
-      window.addEventListener("mouseup", ()=>{
-        if (!dragging) return; dragging = false; commit(); clearPreview(); startCell = null;
-      });
-
-      // Touch
-      gridEl.addEventListener("touchstart", (e)=>{
-        const t = e.touches[0];
-        const el = document.elementFromPoint(t.clientX, t.clientY);
-        const cellEl = el?.closest?.(".cell"); if (!cellEl) return;
-        dragging = true; startCell = { r:+cellEl.dataset.r, c:+cellEl.dataset.c };
-        preview(startCell.r, startCell.c); e.preventDefault();
-      }, {passive:false});
-      gridEl.addEventListener("touchmove", (e)=>{
-        if (!dragging) return;
-        const t = e.touches[0];
-        const el = document.elementFromPoint(t.clientX, t.clientY);
-        const cellEl = el?.closest?.(".cell"); if (!cellEl) return;
-        preview(+cellEl.dataset.r, +cellEl.dataset.c); e.preventDefault();
-      }, {passive:false});
-      window.addEventListener("touchend", ()=>{
-        if (!dragging) return; dragging = false; commit(); clearPreview(); startCell = null;
+      arr.forEach((e,i)=>{
+        const li = document.createElement('li');
+        const date = new Date(e.date);
+        const ds = date.toLocaleDateString([], {month:'short', day:'2-digit'});
+        li.textContent = `${i+1}. ${e.score} pts — ${e.correct}✓/${e.wrong}✗ — ${e.time}s — ${e.level} — ${ds}`;
+        boardEl.appendChild(li);
       });
     }
 
-    /* ========= Controls ========= */
-    function generate(){
-      const words = readWordsStrict(); // strict: 1 word per line enforced
-      const size = Math.max(8, Math.min(30, parseInt(document.getElementById("size").value || "12", 10)));
-      if (words.length===0){ statusEl.textContent = "Add some words first (one per line)."; return; }
+    clearBoardBtn.addEventListener('click', ()=>{
+      localStorage.removeItem('number_champ_scores_v1');
+      loadBoard();
+    });
 
-      const js = generateWordSearchJS(words, size);
-      current.grid = js.grid; current.placements = js.placements;
-      current.unplaced = js.unplaced; current.words = js.words;
-      current.size = js.size; current.solutionShown = false; current.foundWords = new Set();
-
-      renderGrid(current.grid, current.size);
-      renderLegend(current.words, current.placements, current.unplaced);
-      applySolution(false);
-
-      document.getElementById("grid").style.gridTemplateColumns = `repeat(${current.size}, var(--cell))`;
-      statusEl.textContent = `Made a ${current.size}×${current.size} puzzle. ${Object.keys(current.placements).length} placed, ${current.unplaced.length} unplaced.`;
-      toggleBtn.textContent = "Show solution";
+    // small audio feedback using WebAudio (no external files)
+    let audioCtx;
+    function beep(freq=440, dur=120){
+      try{
+        audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.frequency.value = freq;
+        o.type = 'sine';
+        o.connect(g); g.connect(audioCtx.destination);
+        g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.2, audioCtx.currentTime+0.01);
+        o.start();
+        setTimeout(()=>{
+          g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.05);
+          setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, 60);
+        }, dur);
+      }catch(e){/* ignore */}
     }
-    function toggleSolution(){
-      current.solutionShown = !current.solutionShown;
-      applySolution(current.solutionShown);
-      toggleBtn.textContent = current.solutionShown ? "Hide solution" : "Show solution";
-    }
 
-    document.getElementById("btn-generate").addEventListener("click", generate);
-    document.getElementById("btn-toggle").addEventListener("click", toggleSolution);
+    // Wire up UI
+    startBtn.addEventListener('click', start);
+    skipBtn.addEventListener('click', skip);
+    resetBtn.addEventListener('click', reset);
+    timerSel.addEventListener('change', onTimerChange);
+    diffSel.addEventListener('change', reset);
+    modeSeg.addEventListener('click', (e)=>{
+      if(e.target.tagName==='BUTTON'){
+        const mode = e.target.dataset.mode;
+        onModeChange(mode);
+      }
+    });
+    opChecks.forEach(c=> c.addEventListener('change', ()=> { if(!state.running) return; renderQuestion(); }));
 
-    // Defaults
-    document.getElementById("words").value = [
-      "Bobby","Nani","Sagar","Swarna","Siva","Mani","Deepu","Akki","Sunny","Bindu","Honey","Rohit","Lakshmi"
-    ].join("\n");
-    const initialSize = parseInt(document.getElementById("size").value, 10) || 12;
-    renderGrid(Array.from({length: initialSize}, ()=> " ".repeat(initialSize)), initialSize);
-    attachDragHandlers();
-  </script>
+    // keyboard support (optional)
+    document.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter') { if(!state.running) start(); else skip(); }
+      if(['1','2','3','4'].includes(e.key)){
+        const btn = optsEl.children[+e.key-1];
+        if(btn) btn.click();
+      }
+    });
+
+    loadBoard();
+  })();
+</script>
 </body>
 </html>
-
